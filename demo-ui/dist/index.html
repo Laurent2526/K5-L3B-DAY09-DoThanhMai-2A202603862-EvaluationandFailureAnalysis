@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="vi">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Theo dõi một yêu cầu hoàn tiền qua trace, grader và merge gate.">
+<title>Luồng đánh giá hoàn tiền · Day 09</title>
+<link rel="stylesheet" href="style.css">
+<script src="data.js" defer></script>
+<script src="app.js" defer></script>
+<header><div class="shell top"><a href="#">LogiX<span> / </span>Lab 09</a><nav aria-label="Điều hướng"><a href="#trace">Trace</a><a href="#gate">Merge gate</a><a href="#advanced">Mở rộng</a></nav></div></header>
+<main class="shell">
+  <section class="intro">
+    <p class="eyebrow">LOGIX-VN · EVALUATION &amp; FAILURE ANALYSIS</p>
+    <h1>Một yêu cầu hoàn tiền.<br><em>Hai kết quả.</em></h1>
+    <p>Chuyển giữa bản lỗi và bản sửa để xem agent đã làm gì, grader kiểm tra gì và vì sao gate cho qua hoặc chặn.</p>
+  </section>
+  <div class="flow" aria-label="Luồng đánh giá">
+    <a href="#trace"><span>01</span> Trace <small>Agent đã làm gì?</small></a>
+    <a href="#grader"><span>02</span> Grader <small>Kết quả có đúng?</small></a>
+    <a href="#gate"><span>03</span> Gate <small>Có cho merge?</small></a>
+  </div>
+  <section class="case" id="trace">
+    <div class="case-head"><div><p class="eyebrow">CLAIM C-002 · SEED 11</p><h2>Đơn O-202 giao trễ</h2></div>
+      <div class="switch" role="group" aria-label="Chọn bản agent"><button type="button" data-run="seeded_regression" aria-pressed="true">Bản lỗi</button><button type="button" data-run="fixed" aria-pressed="false">Bản sửa</button></div>
+    </div>
+    <div class="facts"><div><small>Khách nói trong ticket</small><strong id="ticket"></strong></div><div><small>Dữ kiện từ DB</small><strong id="db"></strong></div><div><small>Hoàn tiền kỳ vọng</small><strong id="expected"></strong></div></div>
+    <div class="workbench">
+      <div class="timeline"><h3>Trace theo thứ tự</h3><p>Bấm từng bước để xem agent đã làm gì.</p><ol id="steps"></ol></div>
+      <article class="detail" aria-live="polite" aria-atomic="true">
+        <div class="detail-head"><span id="step-number"></span><span id="step-badge" class="pill" hidden></span></div>
+        <h3 id="step-title"></h3><p id="step-explanation"></p>
+        <details><summary>Xem dữ liệu gốc</summary><pre id="payload"></pre></details>
+        <div class="step-nav"><button id="previous" type="button">← Bước trước</button><button id="next" type="button">Bước sau →</button></div>
+      </article>
+    </div>
+  </section>
+  <section class="results" aria-label="Kết quả đánh giá">
+    <article class="result" id="grader">
+      <p class="eyebrow">02 / MỘT TRIAL</p><h2>Grader kiểm tra kết quả</h2>
+      <div class="result-row"><span>Tiền thực ghi trong ledger</span><strong id="actual"></strong></div>
+      <div class="result-row"><span>Tiền kỳ vọng</span><strong id="expected-grader"></strong></div>
+      <div class="verdict" id="grader-result" aria-live="polite"></div>
+    </article>
+    <article class="result" id="gate">
+      <p class="eyebrow" id="gate-scope"></p><h2>Gate quyết định merge</h2>
+      <div class="result-row"><span>Tỉ lệ trial qua (<code>pass_rate</code>)</span><strong id="pass-rate"></strong></div>
+      <div class="result-row"><span>Chênh lệch so với baseline</span><strong id="delta"></strong></div>
+      <p class="ci" id="ci"></p>
+      <div class="verdict" id="gate-result" aria-live="polite"></div>
+      <p class="run-id" id="run-id"></p>
+    </article>
+  </section>
+  <section id="advanced" class="advanced">
+    <h2>Khi xem sâu hơn</h2>
+    <details><summary>Judge · Ai kiểm tra chất lượng câu trả lời?</summary><p id="judges"></p></details>
+    <details><summary>Slice · Điểm tổng cao có che mất lỗi hoàn tiền?</summary><p id="slices"></p></details>
+    <details><summary>Seed · Agent có làm đúng liên tục?</summary><p id="seeds"></p></details>
+    <details><summary>Integrity · Report có đủ dữ liệu?</summary><p>Gate kiểm tra thiếu hoặc trùng trial, grader lỗi, thay đổi slice và nới ngưỡng. Bốn trap công khai đều bị chặn.</p></details>
+  </section>
+  <noscript><p>Bật JavaScript để chuyển bản chạy và xem các bước trace.</p></noscript>
+</main>
+<footer class="shell">Dữ liệu replay từ bài Day 09 · MockLLM và ledger mô phỏng</footer>
+</html>
