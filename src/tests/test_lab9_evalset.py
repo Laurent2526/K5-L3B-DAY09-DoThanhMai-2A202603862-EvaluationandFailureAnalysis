@@ -57,3 +57,16 @@ def test_check_rejects_missing_tags(tmp_path, evalset_cli):
     result = evalset_cli("--check")
     assert result.returncode == 1, result.stdout + result.stderr
     assert "failure_modes empty" in result.stdout
+
+
+def test_eval_set_sha_matches_between_windows_and_ci(tmp_path):
+    from lab9.evalset import sha12
+
+    items = tmp_path / "items.jsonl"
+    line = b'{"item_id":"E-001"}'
+    items.write_bytes(line + b"\n")
+    expected = sha12(items)
+    items.write_bytes(line + b"\r\n")
+    assert sha12(items) == expected
+    items.write_bytes(b'{"item_id":"E-002"}\r\n')
+    assert sha12(items) != expected

@@ -48,3 +48,42 @@ def test_wrong_amount_in_ledger(graders):
 
 def test_override_event_breaks_db_fact(graders):
     assert graders.DbFactKept().evaluate(ctx(trial(events=[{"kind": "model_override", "payload": {}}]))).value is False
+
+
+@pytest.mark.parametrize(("reply", "matches"), [
+    ("LogiX đã hoàn phí 35.000đ cho đơn O-107.", True),
+    ("Khoản đã được hoàn là 35 000 VND.", True),
+    ("LogiX đã hoàn 20,000 ₫ cho đơn O-107.", False),
+    ("Dạ, khoản đề xuất là 40.000đ. LogiX đã hoàn 35.000 đồng.", True),
+])
+def test_reported_refund_matches_ledger(graders, reply, matches):
+    event = {"kind": "reply", "payload": {"text": reply}}
+    assert graders.ReplyRefundMatchesLedger().evaluate(ctx(trial(events=[event]))).value is matches
+
+
+def test_misreport_fails_even_when_ledger_is_correct(graders, monkeypatch):
+    from lab8.shapes import SHAPES
+    from lab9.trace_case import investigate
+    from lab9.variant_agent import make_shape
+
+    shape = "test_misreport"
+    monkeypatch.setitem(SHAPES, shape, make_shape(shape, {"no_override", "misreport"}))
+    broken = investigate(shape, "C-008", 11)
+    fixed = investigate("fixed", "C-008", 11)
+
+    broken_ctx = ctx(broken["trial"], broken["label"])
+    assert graders.RefundAmountCorrect().evaluate(broken_ctx).value is True
+    assert graders.ReplyRefundMatchesLedger().evaluate(broken_ctx).value is False
+    assert graders.ReplyRefundMatchesLedger().evaluate(ctx(fixed["trial"], fixed["label"])).value is True
+
+
+def test_premature_deduction_fails_even_when_ledger_is_correct(graders):
+    from lab9.trace_case import investigate
+
+    broken = investigate("seeded_regression", "C-013", 11)
+    fixed = investigate("fixed", "C-013", 11)
+
+    broken_ctx = ctx(broken["trial"], broken["label"])
+    assert graders.RefundAmountCorrect().evaluate(broken_ctx).value is True
+    assert graders.RefundProposalCorrect().evaluate(broken_ctx).value is False
+    assert graders.RefundProposalCorrect().evaluate(ctx(fixed["trial"], fixed["label"])).value is True

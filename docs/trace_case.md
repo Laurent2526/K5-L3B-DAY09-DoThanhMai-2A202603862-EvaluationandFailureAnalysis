@@ -10,18 +10,18 @@ python -m lab9.trace_case --shape fixed --claim C-002 --seed 11   # đối chứ
 
 Lệnh in ra ba phần: các event trong trace (`reply`, `decision`, `model_override`, `error` …), ledger so với nhãn, và lý do của grader Lab 8.
 
-## Mẫu điền (mỗi bạn 1 case, lấy từ trial đang fail trong report)
+## Replay FM-03 trên C-002@11
 
 | Trường | Nội dung |
 |---|---|
-| Trial | `<shape> <claim>@<seed>`, run ID trong report |
-| Triệu chứng | Grader nào fail; reply nói gì so với ledger ghi gì |
-| Bước sai đầu tiên | Số thứ tự event + kind + trích payload (≤1 dòng) |
-| Vì sao là bước *đầu tiên* | Các bước trước đó đúng ra sao (dẫn số event) |
-| Failure mode | Mã FM-xx trong `docs/failure_taxonomy.md` |
-| Đối chứng | Cùng claim@seed trên shape `fixed`: bước đó khác thế nào |
-| Regression test | Tên test + grader/assert nào bắt được; đã thấy fail trên variant lỗi và pass trên `fixed` chưa |
-| Chưa chắc chắn | Điều trace không chứng minh được |
+| Trial | `seeded_regression C-002@11`, run ID `E-seeded_regression-20261118-45aa`, item E-002. |
+| Triệu chứng | Grader Lab 8 báo `status resolved != denied`. Reply và ledger cùng ghi 20.000đ trong khi nhãn yêu cầu từ chối và ledger 0đ. |
+| Bước sai đầu tiên | Bước 3, `model_override`, payload `{"delay_days": 5}`. |
+| Vì sao là bước đầu tiên | Bước 1 handoff đúng C-002. Bước 2 investigator đọc đúng O-202 và độ trễ 2 ngày từ DB. Bước 3 thay độ trễ bằng con số 5 ngày trong ticket rồi bước 4 mới tính quote sai 20.000đ. |
+| Failure mode | FM-03 trong `docs/failure_taxonomy.md`. |
+| Đối chứng | `fixed C-002@11` giữ độ trễ 2 ngày. Bước 3 là `quote` với `amount_vnd=0` và `reason=no_entitlement`. Ledger giữ 0đ và grader Lab 8 qua. |
+| Regression test | `test_c002_ticket_cannot_override_db_delay` kiểm tra ledger, trạng thái và event override trên cả hai biến thể. |
+| Chưa chắc chắn | Trace cho thấy override trong lần replay này. Cần đối chiếu kết quả và ledger để phát hiện biến thể thay dữ kiện mà không ghi event. |
 
 ## Quy tắc
 
